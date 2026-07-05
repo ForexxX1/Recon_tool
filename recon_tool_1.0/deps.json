@@ -1,0 +1,21 @@
+{
+  "tools": {
+    "subfinder": {
+      "install_cmd": "go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest",
+      "check_cmd": "subfinder -version",
+      "version_pattern": "v[\\d.]+"
+    },
+    "assetfinder": {
+      "install_cmd": "go install github.com/tomnomnom/assetfinder@latest",
+      "check_cmd": "assetfinder -h"
+    },
+    "amass": {
+      "install_cmd": "go install -v github.com/owasp-amass/amass/v4/...@master",
+      "check_cmd": "amass -version"
+    },
+    "httpx": {
+      "install_cmd": "go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest",
+      "check_cmd": "httpx -version"
+    }
+  }
+}
