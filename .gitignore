@@ -3,6 +3,14 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+httpx_input.txt
+waymore_*.txt
+*.log
+report_*.html
+report_*.json
+*.tmp
+tools/
+
 # C extensions
 *.so
 
