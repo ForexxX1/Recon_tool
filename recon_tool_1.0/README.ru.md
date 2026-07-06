@@ -48,11 +48,21 @@ pip install -r requirements.txt
 
 Все бинарники должны находиться в $PATH или в папке tools/.
 Запуск скрипта с доменом
-bash
 
 python main.py example.com
 
 Или без аргументов – вас попросят ввести домен в интерактивном режиме.
+
+### Использование с режимами
+# Безопасный режим для Bug Bounty (10 потоков, задержка 100ms) – по умолчанию
+python main.py example.com --mode safe
+
+# Быстрый режим для личного тестирования (50 потоков, без задержки)
+python main.py example.com --mode fast
+
+# Средний режим (30 потоков, задержка 50ms)
+python main.py example.com --mode medium
+
 Структура проекта
 text
 
