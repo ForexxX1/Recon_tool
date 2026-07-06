@@ -46,6 +46,16 @@ All binaries must be in $PATH or inside the tools/ folder.
 python main.py example.com
 Or without arguments – you will be prompted to enter the domain interactively.
 
+### Usage with modes
+# Safe mode for Bug Bounty (10 threads, 100ms delay) – default
+python main.py example.com --mode safe
+
+# Fast mode for personal testing (50 threads, no delay)
+python main.py example.com --mode fast
+
+# Medium mode (30 threads, 50ms delay)
+python main.py example.com --mode medium
+
 ### Project Structure
 recon_tool/
 ├── main.py                 # Entry point
