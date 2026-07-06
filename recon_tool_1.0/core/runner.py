@@ -50,28 +50,31 @@ async def run_amass_passive(domain):
         return set(filter(None, out.strip().splitlines()))
     return set()
 
-async def run_httpx(domains):
+async def run_httpx(domains, mode="safe"):
     if not domains:
         return []
     cmd = get_tool_path("httpx")
     if not cmd:
         print("[!] httpx не найден в tools или PATH")
         return []
+
+    # Настройки в зависимости от режима
+    if mode == "safe":
+        threads = "10"
+        delay = "100ms"
+    elif mode == "medium":
+        threads = "30"
+        delay = "50ms"
+    elif mode == "fast":
+        threads = "50"
+        delay = "0ms"
+    else:
+        threads = "10"
+        delay = "100ms"
+
     temp_file = "httpx_input.txt"
     with open(temp_file, "w") as f:
         f.write("\n".join(domains))
-
-    # ================================================================
-    # НАСТРОЙКИ СКОРОСТИ (измените по необходимости)
-    # ----------------------------------------------------------------
-    # Для максимальной скорости (тестирование, свои проекты):
-    THREADS = "50"
-    DELAY = "0ms"
-    #
-    # Для Bug Bounty программ с ограничением по нагрузке (рекомендуется):
-    # THREADS = "10"
-    # DELAY = "100ms"
-    # ================================================================
 
     args = [
         "-l", temp_file,
@@ -80,10 +83,11 @@ async def run_httpx(domains):
         "-title",
         "-tech-detect",
         "-follow-redirects",
-        "-threads", THREADS,
-        "-delay", DELAY,
+        "-threads", threads,
+        "-delay", delay,
         "-no-color"
     ]
+
     out, err, code = await run_command(cmd, args, timeout=300)
     Path(temp_file).unlink(missing_ok=True)
     if err:
