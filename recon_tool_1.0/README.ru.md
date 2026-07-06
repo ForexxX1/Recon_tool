@@ -25,8 +25,11 @@
 - Linux (рекомендуется Ubuntu/Debian, работает на любом дистрибутиве)
 - Необходимые пакеты: `git`, `curl`, `wget`, `python3`, `python3-pip`, `python3-venv`, `golang-go`
 
+### Клонируйте репозиторий
+git clone https://github.com/ForexxX1/Recon_tool.git
+cd Recon_tool/recon_tool_1.0
+
 ### Установка Python-зависимостей в виртуальном окружении
-```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
