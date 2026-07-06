@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import asyncio
-import sys
-from pathlib import Path
+import argparse
 from core.installer import ensure_tools
 from core.runner import run_subfinder, run_assetfinder, run_amass_passive, run_httpx, run_waymore
 from core.collectors import fetch_crtsh, fetch_dnsdumpster
@@ -11,8 +10,9 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 console = Console()
 
-async def recon(domain):
+async def recon(domain, mode):
     console.print(f"[bold cyan]Начинаем разведку для {domain}[/]")
+    console.print(f"[bold yellow]Режим httpx: {mode}[/]")
 
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task1 = progress.add_task("[yellow]Сбор поддоменов (subfinder, assetfinder, crt.sh, dnsdumpster)...", total=None)
@@ -37,7 +37,7 @@ async def recon(domain):
 
     with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}")) as progress:
         task3 = progress.add_task("[yellow]Проверка живых хостов (httpx)...", total=None)
-        alive = await run_httpx(list(all_domains))
+        alive = await run_httpx(list(all_domains), mode)
         progress.update(task3, completed=True)
     console.print(f"[green]Обнаружено {len(alive)} живых хостов[/]")
 
@@ -47,11 +47,9 @@ async def recon(domain):
         progress.update(task4, completed=True)
     console.print(f"[green]Найдено {len(urls)} URL-адресов[/]")
 
-    # Защита от мусора в alive
     if not isinstance(alive, list):
         alive = []
     else:
-        # Оставляем только элементы, которые являются словарями с ключом "domain"
         alive = [h for h in alive if isinstance(h, dict) and "domain" in h]
 
     report_data = {
@@ -62,10 +60,16 @@ async def recon(domain):
     return report_data
 
 async def main():
-    if len(sys.argv) < 2:
+    parser = argparse.ArgumentParser(description="OSINT Recon Tool")
+    parser.add_argument("domain", nargs="?", help="Target domain (e.g., example.com)")
+    parser.add_argument("--mode", "-m", choices=["safe", "fast", "medium"], default="safe",
+                        help="Mode for httpx: safe (10 threads, 100ms delay), fast (50 threads, 0 delay), medium (30 threads, 50ms delay)")
+    args = parser.parse_args()
+
+    if not args.domain:
         target = input("Введите домен (например, example.com): ").strip()
     else:
-        target = sys.argv[1]
+        target = args.domain
 
     if not target:
         console.print("[red]Домен не указан.[/]")
@@ -74,7 +78,7 @@ async def main():
     console.print("[bold]Проверка инструментов...[/]")
     ensure_tools()
 
-    data = await recon(target)
+    data = await recon(target, args.mode)
     generate_report(data, target)
 
 if __name__ == "__main__":
