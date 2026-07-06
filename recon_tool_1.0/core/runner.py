@@ -72,9 +72,10 @@ async def run_httpx(domains, mode="safe"):
         threads = "10"
         delay = "100ms"
 
-    temp_file = "httpx_input.txt"
-    with open(temp_file, "w") as f:
-        f.write("\n".join(domains))
+    # Создаём временный файл с уникальным именем
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp:
+        tmp.write("\n".join(domains))
+        temp_file = tmp.name
 
     args = [
         "-l", temp_file,
@@ -89,7 +90,13 @@ async def run_httpx(domains, mode="safe"):
     ]
 
     out, err, code = await run_command(cmd, args, timeout=300)
-    Path(temp_file).unlink(missing_ok=True)
+
+    # Удаляем временный файл
+    try:
+        Path(temp_file).unlink()
+    except:
+        pass
+
     if err:
         print(f"[!] httpx stderr: {err}")
     if code != 0:
@@ -128,20 +135,41 @@ async def run_waymore(domain):
     if not cmd:
         print("[!] waymore не установлен. Установите: pip install waymore")
         return []
-    temp_name = f"waymore_{domain}.txt"
+
+    # Создаём временный файл с уникальным именем
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as tmp:
+        temp_name = tmp.name
+
     args = ["-i", domain, "-oU", temp_name]
     out, err, code = await run_command(cmd, args, timeout=600)
+
     if err:
         print(f"[!] waymore stderr: {err}")
+
     urls = []
-    if Path(temp_name).exists():
+    if code == 0:
         try:
             with open(temp_name, "r", encoding="utf-8") as f:
                 urls = [line.strip() for line in f if line.strip()]
         except Exception as e:
             print(f"[!] Ошибка чтения файла: {e}")
-        Path(temp_name).unlink(missing_ok=True)
+        finally:
+            try:
+                Path(temp_name).unlink()
+            except:
+                pass
     else:
-        print("[!] Файл не создан")
+        print(f"[!] waymore завершился с кодом {code}")
+        if Path(temp_name).exists():
+            try:
+                with open(temp_name, "r", encoding="utf-8") as f:
+                    urls = [line.strip() for line in f if line.strip()]
+            except:
+                pass
+            try:
+                Path(temp_name).unlink()
+            except:
+                pass
+
     urls = list(set(urls))[:2000] if len(urls) > 2000 else list(set(urls))
     return urls
