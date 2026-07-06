@@ -25,6 +25,10 @@ Automated tool for passive information gathering about web applications and doma
 - Linux (Ubuntu/Debian recommended, works on any distribution)
 - Required packages: `git`, `curl`, `wget`, `python3`, `python3-pip`, `python3-venv`, `golang-go`
 
+### Clone the repository
+git clone https://github.com/ForexxX1/Recon_tool.git
+cd Recon_tool/recon_tool_1.0
+
 ### Install Python dependencies in a virtual environment:
 python3 -m venv venv
 source venv/bin/activate
